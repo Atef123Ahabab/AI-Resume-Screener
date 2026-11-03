@@ -1,17 +1,16 @@
 import streamlit as st
-import os, re, base64, time, docx, io
+import os, re, base64, time, docx
 import pypdf
-import fitz  # PyMuPDF for PDF-to-image fallback
-from PIL import Image
+import fitz
 from openai import OpenAI
 from dotenv import load_dotenv
+from prompt import get_evaluation_prompt
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("GROQ_API_KEY"), base_url="https://api.groq.com/openai/v1")
 
 st.set_page_config(page_title="AI Resume Screener", page_icon="🏆", layout="wide")
 
-# --- DYNAMIC UI ---
 try:
     with open("jd.txt", "r", encoding="utf-8") as f:
         jd_full_text = f.read()
@@ -22,13 +21,12 @@ except Exception:
     job_title = "Unknown Job"
 
 st.title("🏆 AI Resume Screener")
-st.markdown(f"**Job Description:** {job_title}")
+st.markdown(f"**Target Position:** {job_title}")
 st.markdown("---")
 
 folder = "resumes/downloaded"
 
 def process_file(path, ext):
-    """Extracts text, or returns base64 image if it's a scanned PDF/Image."""
     if ext in ["jpeg", "jpg", "png"]:
         return None, base64.b64encode(open(path, "rb").read()).decode()
     
@@ -40,7 +38,6 @@ def process_file(path, ext):
         except Exception:
             text = ""
         
-        # FALLBACK: If PDF has no text (scanned), convert first page to image
         if len(text.strip()) < 50: 
             try:
                 doc = fitz.open(path)
@@ -74,7 +71,7 @@ if st.button("🚀 Run AI Screening", type="primary"):
     files = [f for f in sorted(os.listdir(folder)) if f.lower().split(".")[-1] in valid_exts and not f.startswith(".")]
     
     if not files:
-        st.error("No valid CVs found in 'resumes/downloaded'!")
+        st.error("No valid CVs found in 'resumes/downloaded/'!")
     else:
         progress_bar = st.progress(0)
         
@@ -90,27 +87,38 @@ if st.button("🚀 Run AI Screening", type="primary"):
                 text, b64_img = process_file(path, ext)
                 
                 if b64_img:
-                    # VISION AI for Images or Scanned PDFs
+                    prompt_text = get_evaluation_prompt(jd_full_text[:4000], "[Image attached]")
                     messages = [{"role": "user", "content": [
-                        {"type": "text", "text": f"Job Description: {jd_full_text[:2000]}. Extract candidate name and score this resume 0-100. Reply: NAME: [name] | SCORE: [number]"},
+                        {"type": "text", "text": prompt_text},
                         {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"}}
                     ]}]
                 else:
-                    # TEXT AI for normal PDFs, DOCX, TXT
-                    messages = [{"role": "user", "content": f"Job Description: {jd_full_text[:2000]}. Resume: {text[:2500]}. Extract candidate name and score 0-100. Reply: NAME: [name] | SCORE: [number]"}]
+                    if not text.strip():
+                        results.append({"name": name, "file": fn, "score": 0, "reason": "Empty or unreadable file."})
+                        continue
+                    prompt_text = get_evaluation_prompt(jd_full_text[:4000], text[:4000])
+                    messages = [{"role": "user", "content": prompt_text}]
                 
-                r = client.chat.completions.create(model="qwen/qwen3.8-27b", messages=messages, temperature=0, max_tokens=50)
+                r = client.chat.completions.create(
+                    model="qwen/qwen3.8-27b", 
+                    messages=messages, 
+                    temperature=0.1,
+                    max_tokens=150
+                )
                 raw = r.choices[0].message.content.strip()
                 
-                sm = re.search(r"SCORE:\s*(\d+)", raw)
-                nm = re.search(r"NAME:\s*([^|]+)", raw)
+                sm = re.search(r"SCORE:\s*(\d+)", raw, re.IGNORECASE)
+                nm = re.search(r"NAME:\s*([^\n|]+)", raw, re.IGNORECASE)
+                rm = re.search(r"REASON:\s*(.+)", raw, re.IGNORECASE)
                 
                 score = min(int(sm.group(1)), 100) if sm else 0
                 extracted = nm.group(1).strip() if nm else name
-                results.append({"name": extracted, "file": fn, "score": score})
+                reason = rm.group(1).strip() if rm else "No reasoning provided."
+                
+                results.append({"name": extracted, "file": fn, "score": score, "reason": reason})
                 
             except Exception as e:
-                results.append({"name": name, "file": fn, "score": 0})
+                results.append({"name": name, "file": fn, "score": 0, "reason": f"API Error: {str(e)[:50]}"})
             
             time.sleep(2.5)
             
@@ -126,12 +134,13 @@ if st.button("🚀 Run AI Screening", type="primary"):
             with col1:
                 st.markdown(f"### #{i}")
             with col2:
-                st.markdown(f"**{r['name']}**")
-                st.caption(r["file"])
+                st.markdown(f"**{r['name']}** ")
+                st.caption(r['file'])
+                st.info(f"💡 **AI Analysis:** {r['reason']}")
             with col3:
-                if r["score"] >= 70:
+                if r['score'] >= 70:
                     st.success(f"**{r['score']} / 100** ✅")
-                elif r["score"] >= 50:
+                elif r['score'] >= 50:
                     st.warning(f"**{r['score']} / 100** ⚠️")
                 else:
                     st.error(f"**{r['score']} / 100** ❌")
@@ -141,4 +150,4 @@ if st.button("🚀 Run AI Screening", type="primary"):
         chart_data = {r["name"]: r["score"] for r in results}
         st.bar_chart(chart_data)
 else:
-    st.info("Click the button above to start the AI screening. Supports PDF, DOCX, TXT, and Images (including Scanned PDFs).")
+    st.info("Click the button above to start the rigorous AI screening. Supports PDF, DOCX, TXT, and Images.")
