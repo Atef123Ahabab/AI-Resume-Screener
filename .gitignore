@@ -2,3 +2,12 @@
 output/
 .env
 .DS_Store
+.env
+.venv/
+output/
+resumes/downloaded/
+.env
+.venv/
+output/
+resumes/downloaded/
+.DS_Store
