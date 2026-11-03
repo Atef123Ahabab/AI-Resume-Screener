@@ -1,0 +1,24 @@
+Job Title: Junior Software Engineer / Software Analyst
+Company: TechSolutions BD
+Location: Dhaka, Bangladesh (Hybrid)
+
+Job Description:
+We are looking for a motivated Software Engineer to join our growing team. You will be responsible for analyzing business requirements, designing software solutions, and writing clean, scalable code. 
+
+Key Responsibilities:
+- Analyze user requirements and translate them into technical specifications.
+- Write clean, testable, and efficient code (JavaScript, Python, or Java).
+- Collaborate with cross-functional teams to define, design, and ship new features.
+- Troubleshoot, debug, and upgrade existing software.
+
+Requirements:
+- Bachelor’s degree in Computer Science, Software Engineering, or a related field.
+- 1-2 years of experience in software development or analysis.
+- Strong understanding of object-oriented programming and web technologies (HTML, CSS, JavaScript, React or Node.js).
+- Experience with databases (SQL or MongoDB).
+- Familiarity with Git and version control.
+
+Preferred Skills:
+- Experience with cloud platforms (AWS or Azure).
+- Knowledge of Agile/Scrum methodologies.
+- Strong problem-solving skills and excellent communication.
