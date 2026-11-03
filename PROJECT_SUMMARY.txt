@@ -1,0 +1,55 @@
+PROJECT SUMMARY: AI-POWERED RESUME SCREENER
+============================================
+
+STUDENT: Atef Ahabab
+COURSE: SQA 19
+GITHUB: https://github.com/Atef123Ahabab/AI-Resume-Screener
+
+ORIGINAL GOAL:
+Fully automate Bdjobs recruiting — login, filter, download CVs,
+and rank candidates based on a Job Description.
+
+WHAT WAS ACHIEVED (70%):
+1. AI Scoring Engine (100%) — Uses Qwen 27B via Groq API to score
+   each resume against a JD on a scale of 0-100.
+2. Batch Processing (100%) — Reads all PDFs in resumes/downloaded/
+   and processes them sequentially.
+3. Ranking Output (100%) — Prints a sorted table showing best
+   candidate first.
+4. Security (100%) — API keys stored in .env and excluded from
+   Git via .gitignore.
+
+WHAT COULD NOT BE AUTOMATED (30%):
+1. Bdjobs Login (0%) — Cloudflare Turnstile CAPTCHA blocks
+   automated browsers like Playwright.
+2. CV Download (0%) — Bdjobs provides no bulk download API.
+   Manual download is required.
+3. Candidate Filtering (50%) — Bdjobs' own "Requirement Matching"
+   slider must be used manually.
+
+WHY 100% WAS IMPOSSIBLE:
+1. No official Bdjobs employer API exists.
+2. Cloudflare Turnstile blocks bot login.
+3. Bulk CV download violates Bdjobs' Terms of Service.
+4. No public endpoint for candidate data.
+
+TECH STACK:
+- Python 3.13
+- pypdf (PDF parsing)
+- openai (SDK for Groq API)
+- python-dotenv (secure key handling)
+- Groq API (Qwen 27B model)
+- Git + GitHub (deployment)
+
+HOW TO USE:
+1. Log into Bdjobs Employer account.
+2. Use the "Filter By Requirement Matching" slider (75%+ or 100%).
+3. Download the CVs of the top 5-10 candidates manually.
+4. Place them in resumes/downloaded/.
+5. Run: python simple_rank.py
+6. Read the ranked output (best candidate first).
+
+VERIFICATION:
+- Live on GitHub: https://github.com/Atef123Ahabab/AI-Resume-Screener
+- AI score on test CV: 85/100
+- All tests passing
