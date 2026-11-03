@@ -1,13 +1,6 @@
 .venv/
-output/
+__pycache__/
 .env
-.DS_Store
-.env
-.venv/
+resumes/
 output/
-resumes/downloaded/
-.env
-.venv/
-output/
-resumes/downloaded/
 .DS_Store

@@ -1,13 +1,41 @@
-Job Title: Junior Software Engineer / Software Analyst
-Company: TechSolutions BD
+Job Title: Software Developer
+Company: Commerce World Inc.
+Experience: 0-2 years
 
-Job Description:
-We are looking for a motivated Software Engineer to join our growing team. You will analyze business requirements, design software solutions, and write clean, scalable code.
+About Us:
+Commerce World Inc. is a leading e-commerce startup transforming online shopping. Our platform uses AI and AR to create personalized, engaging shopping experiences. We value diversity, inclusion, and positive change.
 
-Requirements:
-- Bachelor's degree in Computer Science or related field.
-- 1-2 years of experience in software development.
-- Strong understanding of JavaScript, Python, or Java.
-- Experience with databases (SQL or MongoDB).
-- Familiarity with Git and version control.
-- Knowledge of Agile/Scrum methodologies is a plus.
+The Role:
+Join our fast-paced engineering team to develop our advanced e-commerce platform. You will work closely with product and design to turn requirements into well-written code, building reliable, scalable features that deploy smoothly.
+
+Key Responsibilities:
+- Ensure quality of imported data
+- Process confidential information following set guidelines
+- Test and implement software upgrades; support databases and systems
+- Collect, clean, and validate data
+- Generate reports from multiple systems
+- Carefully evaluate changes to source production systems
+- Manage user roles and access
+- Train end-users on new dashboards and reports
+- Develop and optimize data collection procedures
+- Perform statistical analysis and build models to uncover trends
+- Visualize insights through dashboards, reports, presentations
+- Monitor data analytics KPIs
+- Modify software to fix errors and improve performance
+- Supervise programming and documentation processes
+- Consult with departments and customers on project status
+
+Qualifications & Skills:
+- Bachelor's degree in Computer Science
+- 0-2 years of relevant work experience (required)
+- Certification in Python, Java, C++, or AngularJS
+- Strong knowledge of SDLC
+- Problem-solving and communication skills
+- Experience with Agile & Scrum (preferred)
+- Ability to learn quickly
+- Works independently or in a team
+
+Benefits:
+- Competitive salary
+- Medical and dental insurance
+- Annual bonus incentives program
