@@ -4,6 +4,9 @@ import re
 from openai import OpenAI
 from dotenv import load_dotenv
 
+# ==========================================
+# 1. Load API Key
+# ==========================================
 load_dotenv()
 API_KEY = os.getenv("GROQ_API_KEY")
 
@@ -13,6 +16,9 @@ if not API_KEY:
 
 client = OpenAI(api_key=API_KEY, base_url="https://api.groq.com/openai/v1")
 
+# ==========================================
+# 2. Read Job Description
+# ==========================================
 with open("jd.txt", "r", encoding="utf-8") as f:
     jd_text = f.read()
 
@@ -27,6 +33,9 @@ if not os.path.exists(RESUME_DIR):
     print(f"❌ Folder {RESUME_DIR} does not exist.")
     exit()
 
+# ==========================================
+# 3. Loop Through All Resumes
+# ==========================================
 for filename in os.listdir(RESUME_DIR):
     if not filename.lower().endswith(".pdf"):
         continue
@@ -44,10 +53,12 @@ for filename in os.listdir(RESUME_DIR):
         print(f"  ❌ Failed to read PDF: {e}")
         continue
 
-    # Keep only the first 1500 characters to avoid token limits
+    # Keep only first 1500 chars to avoid token limits
     resume_snippet = resume_text[:1500]
 
-    # Conversational prompt asking for just the number
+    # ==========================================
+    # 4. AI Scoring Prompt
+    # ==========================================
     prompt = f"""
     Here is a Job Description:
     {jd_text}
@@ -61,7 +72,7 @@ for filename in os.listdir(RESUME_DIR):
     
     try:
         response = client.chat.completions.create(
-            model="qwen/qwen3.8-27b", # Changed to Qwen model
+            model="qwen/qwen3.8-27b",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.0,
             max_tokens=20
@@ -80,6 +91,9 @@ for filename in os.listdir(RESUME_DIR):
         print(f"  ❌ AI call failed: {e}")
         results.append((filename, 0))
 
+# ==========================================
+# 5. Sort and Display Rankings
+# ==========================================
 results.sort(key=lambda x: x[1], reverse=True)
 
 print("\n" + "=" * 60)
