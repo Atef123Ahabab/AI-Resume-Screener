@@ -1,84 +1,90 @@
 import os
 import pypdf
+import re
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# 1. Load the .env file
 load_dotenv()
-
-# 2. Get the key
 API_KEY = os.getenv("GROQ_API_KEY")
 
-# Safety Check: If the key is missing, stop and tell the user
 if not API_KEY:
-    print("❌ ERROR: Could not find GROQ_API_KEY. Check if your .env file exists and has the key inside.")
+    print("❌ ERROR: Could not find GROQ_API_KEY in .env file.")
     exit()
 
-# 3. Initialize the client
 client = OpenAI(api_key=API_KEY, base_url="https://api.groq.com/openai/v1")
 
-# ==========================================
-# 4. Read the Job Description (JD)
-# ==========================================
-print("Reading Job Description...")
-try:
-    with open("jd.txt", "r", encoding="utf-8") as f:
-        jd_text = f.read()
-except Exception as e:
-    print(f"Failed to read JD. Error: {e}")
+with open("jd.txt", "r", encoding="utf-8") as f:
+    jd_text = f.read()
+
+RESUME_DIR = "resumes/downloaded"
+results = []
+
+print("=" * 60)
+print("🚀 Starting Batch AI Resume Analysis...")
+print("=" * 60)
+
+if not os.path.exists(RESUME_DIR):
+    print(f"❌ Folder {RESUME_DIR} does not exist.")
     exit()
 
-# ==========================================
-# 5. Read the Resume PDF
-# ==========================================
-print("Reading Resume PDF...")
-resume_text = ""
-try:
-    with open("resumes/Atef_Ahabab_CV with picture.pdf", "rb") as f:
-        reader = pypdf.PdfReader(f)
-        for page in reader.pages:
-            resume_text += page.extract_text()
-except Exception as e:
-    print(f"Failed to read PDF. Please check the file path. Error: {e}")
-    exit()
-
-# ==========================================
-# 6. Construct the Prompt
-# ==========================================
-prompt = f"""
-You are a professional recruiter. Please evaluate and score the candidate's resume based on the following Job Description (JD).
-
-[Job Description]:
-{jd_text}
-
-[Candidate Resume]:
-{resume_text}
-
-Please output the following:
-1. Match Score (0-100)
-2. Candidate Strengths
-3. Candidate Weaknesses / Mismatches
-4. Overall Recommendation (Whether to invite for an interview)
-"""
-
-# ==========================================
-# 7. Call Groq API for Scoring
-# ==========================================
-print("Calling Groq AI for scoring, please wait...\n")
-try:
-    response = client.chat.completions.create(
-        model="openai/gpt-oss-20b",
-        messages=[
-            {"role": "system", "content": "You are a professional HR recruitment assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.3,
-        max_tokens=1000
-    )
+for filename in os.listdir(RESUME_DIR):
+    if not filename.lower().endswith(".pdf"):
+        continue
     
-    print("========== AI SCORING RESULTS ==========")
-    print(response.choices[0].message.content)
-    print("========================================")
+    filepath = os.path.join(RESUME_DIR, filename)
+    print(f"\nAnalyzing: {filename}...")
+    
+    try:
+        with open(filepath, "rb") as f:
+            reader = pypdf.PdfReader(f)
+            resume_text = ""
+            for page in reader.pages:
+                resume_text += page.extract_text()
+    except Exception as e:
+        print(f"  ❌ Failed to read PDF: {e}")
+        continue
 
-except Exception as e:
-    print(f"\nAPI Call Failed. Error message: {e}")
+    # Keep only the first 1500 characters to avoid token limits
+    resume_snippet = resume_text[:1500]
+
+    # Conversational prompt asking for just the number
+    prompt = f"""
+    Here is a Job Description:
+    {jd_text}
+
+    Here is a candidate's Resume:
+    {resume_snippet}
+
+    Based on the match between the resume and the job description, what is the match score from 0 to 100? 
+    Please reply with only the number.
+    """
+    
+    try:
+        response = client.chat.completions.create(
+            model="qwen/qwen3.8-27b", # Changed to Qwen model
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0,
+            max_tokens=20
+        )
+        raw = response.choices[0].message.content.strip()
+        print(f"  🔍 Raw AI response: '{raw}'")
+        
+        numbers = re.findall(r'\d+', raw)
+        score = int(numbers[0]) if numbers else 0
+        if score > 100:
+            score = 100
+            
+        results.append((filename, score))
+        print(f"  ✅ Score: {score}")
+    except Exception as e:
+        print(f"  ❌ AI call failed: {e}")
+        results.append((filename, 0))
+
+results.sort(key=lambda x: x[1], reverse=True)
+
+print("\n" + "=" * 60)
+print("🏆 FINAL CANDIDATE RANKING (by AI Score)")
+print("=" * 60)
+for i, (name, score) in enumerate(results, 1):
+    print(f"{i}. {name} — Score: {score}")
+print("=" * 60)
