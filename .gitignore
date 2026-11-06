@@ -4,3 +4,9 @@ __pycache__/
 resumes/
 output/
 .DS_Store
+.agents/
+.claude/
+bd jobs.code-workspace
+ai_engine.py
+groq_screener/
+report.html
