@@ -1,7 +1,7 @@
 import streamlit as st
 import os, re, base64, time, docx
 import pypdf
-import fitz
+import pymupdf as fitz
 from openai import OpenAI
 from dotenv import load_dotenv
 from prompt import get_evaluation_prompt

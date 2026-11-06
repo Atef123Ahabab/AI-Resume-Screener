@@ -1,27 +1,17 @@
 def get_evaluation_prompt(jd_text, cv_text):
-    return f"""You are an expert, unbiased Technical Recruiter and Data Analyst.
-Your task is to evaluate a candidate's CV strictly against the provided Job Description (JD).
-
+    return f"""You are an expert Technical Recruiter.
+Evaluate the CV against the Job Description below.
 --- JOB DESCRIPTION ---
 {jd_text}
-
 --- CANDIDATE CV ---
 {cv_text}
-
 --- INSTRUCTIONS ---
-1. Extract the specific skills, experience, and education required by the JD.
-2. Cross-reference these requirements against the CV.
-3. Assign a score from 0 to 100 based strictly on these weights:
-   - Skills Match (40%): How many required skills does the candidate explicitly have?
-   - Experience Level (30%): Does the candidate have the required years and relevant roles?
-   - Education & Certs (20%): Do they have the required degrees or certifications?
-   - Overall Fit (10%): Based on the context of their history.
-4. If the CV has NO text or is unreadable, you MUST output a score of 0 and explain why.
-5. Do not round to random nice numbers (like 65 or 70) unless mathematically justified by the rubric.
-
+1. Find the candidate's full name from the CV.
+2. Score the candidate from 0 to 100 based on how well they match the JD.
+3. Write ONE sentence explaining the score.
 --- OUTPUT FORMAT ---
-You MUST reply exactly in this format:
-NAME: [Candidate Name]
+Reply exactly in this format (no markdown, no extra words):
+NAME: [Candidate Full Name]
 SCORE: [Integer 0-100]
-REASON: [A single, concise sentence justifying the score based on the rubric.]
+REASON: [One sentence]
 """
